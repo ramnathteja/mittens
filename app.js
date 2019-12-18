@@ -1,8 +1,15 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+
+const fs = require('fs');
+const jsonPath = require('jsonpath');
+const environment = require('./environment/environment');
+const oneM2M_handler = require('./public/javascripts/notification-handler/mobius-notificationHandler');
+const oneM2M_subscription = require('./public/javascripts/oneM2M/oneM2M-subscription');
+
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -37,5 +44,35 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+fs.readFile('environment/listening-list.json', (err, data) => {
+  if (err)
+    throw err;
+  let listening = JSON.parse(data);
+//TODO: possible creation of the discovery methode 
+  let mobius_list = jsonPath.value(listening, '$..oneM2M_listening');
+  mobius_list.forEach(element => {
+    oneM2M_subscription.subscribe(element, (msg) => {
+      /**
+       case1. created a new subscription
+              -->move to next element
+       case2. subscription already exist
+              -->move to next element
+       case3. error
+              -->log the error in subscription error log
+              -->move to the next element  
+       **/
+      console.log(element + '........' + msg + '\n');
+    });
+  });
+});
+
+
+
+oneM2M_handler.notificationHandler();//TODO: consoling part
+
+
+
+
 
 module.exports = app;

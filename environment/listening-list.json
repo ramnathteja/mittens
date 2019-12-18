@@ -1,0 +1,8 @@
+{
+    "oneM2M_listening": [
+        "http://203.253.128.164:7579/Mobius/testtest/parking001",
+        "http://203.253.128.164:7579/Mobius/sync_parking_raw/yt_lot_1",
+        "http://203.253.128.164:7579/Mobius/sync_parking_raw/yt_lot_1/spot_001"
+    ]
+
+}
